@@ -1,0 +1,31 @@
+{
+  "name": "foodhq",
+  "main": "index.js",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  // The shared lib modules import "express"; on Workers that resolves to a tiny compatible shim.
+  "alias": { "express": "./express-shim.js" },
+  "assets": {
+    "directory": "../public",
+    "binding": "ASSETS",
+    "run_worker_first": true,
+    "html_handling": "none",
+    "not_found_handling": "none"
+  },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "foodhq", "database_id": "0d278bfc-ade5-4073-8788-19780c55da5b", "migrations_dir": "migrations" }
+  ],
+  "version_metadata": { "binding": "CF_VERSION_METADATA" },
+  // Every minute: expire incidents whose safety window ended, even with no page open.
+  "triggers": { "crons": ["* * * * *"] },
+  "vars": {
+    "SMS_ENABLED": "false",
+    "PUBLIC_BASE_URL": "https://foodhq-cloud.namosdemos.site"
+  },
+  // Served only on the namosdemos.site custom domain (no workers.dev URL).
+  // foodhq.namosdemos.site still points at the Mac tunnel; see README to switch it.
+  "routes": [{ "pattern": "foodhq-cloud.namosdemos.site", "custom_domain": true }],
+  "workers_dev": false,
+  "preview_urls": false,
+  "observability": { "enabled": true }
+}

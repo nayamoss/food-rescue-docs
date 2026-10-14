@@ -5,11 +5,23 @@ import { existsSync, readFileSync, writeFileSync, renameSync, mkdirSync } from "
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
-const root = fileURLToPath(new URL("../../../", import.meta.url));
-// DATA_DIR lets tests (or a host) keep state somewhere other than <repo>/data.
-const dataDir = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(root, "data");
-const stateFile = path.join(dataDir, "state.json");
-mkdirSync(dataDir, { recursive: true });
+// Default store: data/state.json (sync, atomic). Hosts without a file system (the Cloudflare
+// Worker in worker/) skip it and call useStore() + hydrate() / persist() around each request.
+let fileStore = null;
+if (globalThis.navigator?.userAgent !== "Cloudflare-Workers") {
+  const root = fileURLToPath(new URL("../../../", import.meta.url));
+  // DATA_DIR lets tests (or a host) keep state somewhere other than <repo>/data.
+  const dataDir = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(root, "data");
+  const stateFile = path.join(dataDir, "state.json");
+  mkdirSync(dataDir, { recursive: true });
+  fileStore = {
+    exists: () => existsSync(stateFile),
+    load: () => JSON.parse(readFileSync(stateFile, "utf8")),
+    save: (next) => { writeFileSync(`${stateFile}.tmp`, JSON.stringify(next, null, 2)); renameSync(`${stateFile}.tmp`, stateFile); },
+  };
+}
+let store = null; // async store set by useStore(); when set, commits are saved by persist()
+let dirty = false;
 
 const FEED_LIMIT = 200;
 const DEFAULT_WINDOW_MINUTES = 120;
@@ -64,9 +76,26 @@ function normalise(raw) {
   return s;
 }
 
-let state = existsSync(stateFile) ? normalise(JSON.parse(readFileSync(stateFile, "utf8"))) : initial();
+let state = fileStore?.exists() ? normalise(fileStore.load()) : initial();
 const listeners = new Set();
 export const onChange = (fn) => { listeners.add(fn); return () => listeners.delete(fn); };
+
+// ---- pluggable store --------------------------------------------------------
+// store: { load(dirty): Promise<state | null | undefined>, save(state): Promise<void> }.
+// load resolves null when nothing is saved yet and undefined when the copy in memory is current.
+export function useStore(s) { store = s; }
+export async function hydrate() {
+  const raw = await store.load(dirty);
+  if (raw !== undefined) state = raw ? normalise(raw) : initial();
+  expire();
+}
+// Saves once after a request (or background work). Returns true when something was written.
+export async function persist() {
+  if (!store || !dirty) return false;
+  dirty = false;
+  try { await store.save(state); } catch (error) { dirty = true; throw error; }
+  return true;
+}
 
 // ---- helpers ----------------------------------------------------------------
 export class HttpError extends Error {
@@ -192,8 +221,8 @@ export const volunteerPhone = (id) => volunteerById(id)?.phone || "";
 // ---- commit -----------------------------------------------------------------
 function commit(next) {
   if (next.feed.length > FEED_LIMIT) next = { ...next, feed: next.feed.slice(0, FEED_LIMIT) };
-  writeFileSync(`${stateFile}.tmp`, JSON.stringify(next, null, 2));
-  renameSync(`${stateFile}.tmp`, stateFile);
+  if (store) dirty = true;
+  else fileStore?.save(next);
   state = next;
   const snap = snapshot();
   for (const fn of listeners) { try { fn(snap); } catch { /* listener errors never break state */ } }
@@ -211,7 +240,7 @@ export function expire() {
     ] });
   }
 }
-if (!existsSync(stateFile)) commit(state);
+if (fileStore && !fileStore.exists()) commit(state);
 expire();
 
 // ---- legacy incident + feed endpoints --------------------------------------
