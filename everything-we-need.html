@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Food Rescue HQ: Everything we need</title>
+<style>
+  :root {
+    --bg:#F5F5F5; --surface:#FFFFFF; --raised:#F3F3F3; --sunken:#E8E8E8;
+    --text:#171717; --body:#2B2B2B; --muted:#5C5C5C; --faint:#8A8A8A;
+    --accent:#2F6B50; --on-accent:#FFFFFF; --accent-soft:rgba(47,107,80,.12);
+    --amber:#C77700; --red:#B42318;
+  }
+  html.dark {
+    --bg:#0A0A0A; --surface:#141414; --raised:#1E1E1E; --sunken:#2A2A2A;
+    --text:#FAFAFA; --body:#E5E5E5; --muted:#A3A3A3; --faint:#737373;
+    --accent:#5FA987; --on-accent:#0A0A0A; --accent-soft:rgba(95,169,135,.16);
+    --amber:#E0A030; --red:#F07167;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter",sans-serif; background:var(--bg); color:var(--text); font-size:16px; line-height:1.6; padding:10px; -webkit-font-smoothing:antialiased; }
+  button, select, input { font:inherit; color:inherit; border:none; outline:none; background:none; }
+  button { cursor:pointer; }
+  button:focus-visible, input:focus-visible, select:focus-visible { box-shadow:0 0 0 3px var(--accent-soft); }
+  svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+  .wrap { background:var(--surface); border-radius:13px; padding:36px 44px 64px; max-width:1000px; margin:0 auto; min-height:calc(100vh - 20px); }
+  .top { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; }
+  h1 { font-size:26px; font-weight:700; letter-spacing:-.02em; }
+  .icon-btn { width:34px; height:34px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--muted); }
+  .icon-btn:hover { background:var(--raised); color:var(--text); }
+  .icon-btn.on { background:var(--accent); color:var(--on-accent); }
+  .toolbar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:14px; }
+  .search { flex:1; min-width:220px; display:flex; align-items:center; gap:10px; background:var(--raised); border-radius:8px; padding:0 12px; height:42px; color:var(--muted); }
+  .search input { flex:1; color:var(--text); }
+  .search input:focus { box-shadow:none; }
+  .search:focus-within { background:var(--sunken); box-shadow:0 0 0 3px var(--accent-soft); }
+  .btn-primary { background:var(--accent); color:var(--on-accent); border-radius:6px; padding:0 16px; height:42px; font-weight:600; }
+  select { background:var(--raised); border-radius:8px; height:42px; padding:0 10px; }
+  .seg { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:18px; }
+  .seg button { padding:6px 12px; border-radius:6px; background:var(--raised); color:var(--muted); font-size:14px; }
+  .seg button.on { background:var(--accent); color:var(--on-accent); font-weight:600; }
+  .meta { font-size:15px; color:var(--muted); margin-bottom:22px; display:flex; gap:18px; align-items:center; flex-wrap:wrap; }
+  .meta b { color:var(--accent); }
+  .bar { height:8px; background:var(--sunken); border-radius:4px; overflow:hidden; flex:1; min-width:140px; }
+  .bar > div { height:100%; background:var(--accent); transition:width .3s; }
+  .group { margin-bottom:34px; }
+  .group h2 { font-size:18px; font-weight:700; margin-bottom:4px; }
+  .group .gd { font-size:15px; color:var(--muted); margin-bottom:12px; }
+  .item { background:var(--raised); border-radius:10px; padding:14px 16px; display:flex; gap:14px; align-items:flex-start; margin-bottom:8px; }
+  .item.speaking { background:var(--accent-soft); }
+  .item input[type=checkbox] { width:20px; height:20px; margin-top:4px; accent-color:var(--accent); cursor:pointer; flex-shrink:0; }
+  .item .body { flex:1; }
+  .item .t { font-weight:650; font-size:16px; }
+  .item.done .t { color:var(--faint); text-decoration:line-through; }
+  .item .d { font-size:15px; color:var(--body); }
+  .item.done .d { color:var(--faint); }
+  .tags { display:flex; gap:6px; margin-top:6px; flex-wrap:wrap; }
+  .tag { font-size:12px; font-weight:600; padding:2px 8px; border-radius:5px; background:var(--sunken); color:var(--muted); }
+  .tag.must { background:var(--accent); color:var(--on-accent); }
+  .tag.ask { background:var(--accent-soft); color:var(--accent); }
+  .empty { color:var(--faint); padding:30px 0; text-align:center; }
+  mark { background:var(--accent-soft); color:var(--text); border-radius:3px; }
+  @media (max-width:700px) { .wrap { padding:22px 18px 48px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>Everything we need</h1>
+    <button class="icon-btn" id="themeBtn" title="Toggle dark mode" aria-label="Toggle dark mode"></button>
+  </div>
+
+  <div class="toolbar">
+    <label class="search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="q" type="search" placeholder="Search anything: twilio, number, demo, key..." autocomplete="off">
+    </label>
+    <button class="btn-primary" id="readAll">Read visible aloud</button>
+    <button class="icon-btn" id="stopBtn" title="Stop reading" aria-label="Stop reading">
+      <svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>
+    </button>
+    <select id="rate" aria-label="Reading speed">
+      <option value="0.85">Slow</option>
+      <option value="1" selected>Normal</option>
+      <option value="1.25">Fast</option>
+      <option value="1.5">Faster</option>
+    </select>
+  </div>
+
+  <div class="seg" id="filters"></div>
+
+  <div class="meta">
+    <span id="count"></span>
+    <div class="bar"><div id="barFill" style="width:0"></div></div>
+    <label style="display:flex;gap:8px;align-items:center;cursor:pointer"><input type="checkbox" id="hideDone" style="accent-color:var(--accent);width:16px;height:16px"> Hide done</label>
+  </div>
+
+  <div id="list"></div>
+</div>
+
+<script>
+  const DATA = [
+    // group, title, plain-language description, tag(s), done
+    ['Decide first','Concept: event food waste routed to shelters and partners','The product we are building. Decided. See docs/00-current-plan.md.',['must'],true],
+    ['Decide first','Alert channel: phone calls','Twilio Voice calls with press 1 to claim. SMS, Dev Phone and Conversations are out for now. Decided.',['must'],true],
+    ['Decide first','Team name','Pick one. Recommendation is a short, funny name for the team and keep Food Rescue HQ as the product name. Options are in docs/10.',['must'],false],
+    ['Decide first','Four product decisions','Who creates an incident, auto-assign or HQ approves, portions or one person, who resolves it. Recommendations are in docs/11.',['must'],false],
+    ['Decide first','Who builds what','Proposal: Naya takes the dashboard, state and demo controls. Nikema takes Twilio, the webhook and the report endpoint.',['must'],false],
+
+    ['Ask Nikema (Friday call)','Which tech is required','Which tools did the organizers say are required vs optional? The written brief only needs Twilio plus one integration partner.',['ask','must'],false],
+    ['Ask Nikema (Friday call)','Is Replit required','Or is it Twilio plus any one partner? This decides whether we host on Replit.',['ask'],false],
+    ['Ask Nikema (Friday call)','Is ElevenLabs required','It is not named in the written brief. Confirm before spending time on it.',['ask'],false],
+    ['Ask Nikema (Friday call)','Credits','What was said about credits, which accounts, and how to claim them.',['ask'],false],
+    ['Ask Nikema (Friday call)','Submission and judging','Repo public or private, deployed URL, video, social post, deadline, and how projects are judged.',['ask'],false],
+
+    ['Accounts and logins','GitHub','Signed in. Repos food-rescue-docs and Food-Rescue-HQ-02 exist. The app code is synced to Food-Rescue-HQ-02.',['must'],true],
+    ['Accounts and logins','Replit signed in','Signed in. The Food Rescue HQ App project exists and milestone 1 (dashboard and demo controls) runs.',['must'],true],
+    ['Accounts and logins','Twilio signed in','Signed in. Check this is the account tied to the hackathon credits.',['must'],true],
+    ['Accounts and logins','ElevenLabs signed in','Signed in. Only needed if we do the spoken announcement.',['optional'],true],
+    ['Accounts and logins','Send Twilio Account SID to Chris','Emailed to the organizers on 2026-10-14 (SID only). Waiting for credits, trial removal and a number.',['must','ask'],true],
+
+    ['Twilio setup','Which Twilio number we use','This account has no number and you are not buying one. Ask Nikema and Chris which team number to use, since the sponsor plan mentions a team Twilio number. Until then use the simulate controls.',['must','ask'],false],
+    ['Twilio setup','Check trial status','Checked: this account is Pay-as-you-go, not a trial. Check the console for the remaining balance and whether auto-recharge is on before the day.',['must'],true],
+    ['Twilio setup','Verify demo phone numbers','Only needed if the account is still in trial. Trial accounts can only call verified numbers.',['optional'],false],
+    ['Twilio setup','Set PUBLIC_BASE_URL','Put the Repl public URL in Replit Secrets as PUBLIC_BASE_URL so Twilio can fetch /voice/alert and /voice/claim.',['must'],false],
+
+    ['Replit setup','Create the Repl','Done. The Food Rescue HQ App project exists and runs.',['must'],true],
+    ['Replit setup','Open the Repl URL on a phone','If it loads on a phone, the webhook can reach it too.',['must'],false],
+    ['Replit setup','Add one Secret and read it','Practice putting a key in Secrets and reading it with process.env. Keys never go in code.',['must'],false],
+    ['Replit setup','Keep the Repl awake','Keep the tab open and ping the URL before the demo.',['must'],false],
+
+    ['Keys and secrets','Twilio: Account SID, Auth Token, From number','Go in Replit Secrets as TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM_NUMBER, plus PUBLIC_BASE_URL.',['must'],false],
+    ['Keys and secrets','ElevenLabs API key and voice ID','Optional. ELEVENLABS_API_KEY and ELEVENLABS_VOICE_ID.',['optional'],false],
+    ['Keys and secrets','.env.example file','A copy of the variable names with empty values, so the repo is safe to share.',['must'],false],
+
+    ['Smoke tests (before the day)','Call reaches the Repl','Twilio can fetch /voice/alert from the Repl URL and the Repl logs show the request.',['must'],false],
+    ['Smoke tests (before the day)','Outbound call rings','The server calls your own phone and reads the alert. Press 1 and the dashboard updates.',['must'],false],
+    ['Smoke tests (before the day)','ElevenLabs returns audio','One text-to-speech call. Skip if not using it.',['optional'],false],
+
+    ['Replit build steps','Prompt 1: skeleton and dashboard','Done in Replit. Still has the old wording until Prompt 1.5 runs.',['must'],true],
+    ['Replit build steps','Prompt 1.5: reframe to event food waste','Wording and sample data only. In docs/14-replit-prompt-pack.md.',['must'],false],
+    ['Replit build steps','Prompt 2: voice calls and claim buttons','Works with simulate buttons before a number exists. In docs/14-replit-prompt-pack.md.',['must'],false],
+    ['Replit build steps','Prompt 3: celebration and polish','Only after the loop works.',['optional'],false],
+    ['Replit build steps','Sync Changes after each prompt','Use the Git panel button in Replit. The Agent shell cannot push.',['must'],false],
+    ['Replit build steps','Archive the old food-rescue-hq-app repo','Once nothing points at it. Do not delete.',['optional'],false],
+
+    ['What we build: must have','Live dashboard','Countdown, counters, partners, activity feed. Updates with no refresh.',['must'],false],
+    ['What we build: must have','Quick report form','Quantity, item, location, minutes, with defaults and a confirm step.',['must'],false],
+    ['What we build: must have','Incident creation','One active rescue at a time, from the form or the demo button.',['must'],false],
+    ['What we build: must have','Voice calls to partners','Twilio calls every opted-in partner when an incident starts and reads the alert.',['must'],false],
+    ['What we build: must have','Claim by keypad, pickup by button','Press 1 to claim, 2 to pass. A Mark picked up button on each partner row.',['must'],false],
+    ['What we build: must have','Rescued and expired states','Rescued when all food is picked up. Expired if the clock hits zero first.',['must'],false],
+    ['What we build: must have','Demo controls','Sample incident, simulate reply, fast-forward, reset. The safety net if a call fails.',['must'],false],
+    ['What we build: must have','Mission-complete moment','The brief says delight the user, so a clear celebration screen when everything is rescued counts as required.',['must'],false],
+    ['What we build: stretch','Spoken announcement (ElevenLabs)','Says "400 meals rescued" out loud. Cut first if behind.',['optional'],false],
+    ['What we build: stretch','Organizer reports by phone call','Call the number and report by voice. Only after everything else works.',['optional'],false],
+    ['What we build: stretch','Partner chat in the dashboard','Conversations bridges a browser chat to a partner phone. A next step to pitch, not to build now.',['optional'],false],
+
+    ['Delight the user (the brief)','Clear, urgent alert wording','Alerts and the dashboard should feel urgent and human, not like a donation app.',['must'],false],
+    ['Delight the user (the brief)','Escalating urgency labels','Calm, worried, urgent, as the clock runs down.',['optional'],false],
+
+    ['Pitch and demo day','10-second intro','Team name plus one line. Written in docs/10.',['must'],false],
+    ['Pitch and demo day','30-second pitch and story','The conference story, the problem, the product, then the demo.',['must'],false],
+    ['Pitch and demo day','Answers to likely questions','Why phone calls, safety, trust, what if nobody claims, what is real vs simulated.',['must'],false],
+    ['Pitch and demo day','Who says what','Split the story, the live demo, the tech explanation and the closing line.',['must'],false],
+    ['Pitch and demo day','Rehearse three times','Twice with real phones, once with only demo controls.',['must'],false],
+    ['Pitch and demo day','Demo kit','Phones charged, volume on, partner phones verified and charged, spare device logged in, dashboard reset to idle.',['must'],false],
+
+    ['Submission','Deployed public URL','The live app must load from a fresh browser.',['must'],false],
+    ['Submission','Repo visibility decision','Decide per the challenge rules.',['ask'],false],
+    ['Submission','README with run steps','Five lines on what it is, how to run it, and the demo flow.',['must'],false],
+    ['Submission','Post or video if required','Unknown until the Friday call details are confirmed.',['ask'],false],
+
+    ['Risks to watch','Trial only calls verified numbers','Verify demo numbers or get out of trial, and keep simulate controls as the backup.',['must'],false],
+    ['Risks to watch','Webhook cannot reach the Repl','Smoke test the webhook before the day.',['must'],false],
+    ['Risks to watch','Scope creep','Check the cut line at the start of every hour.',['must'],false],
+    ['Risks to watch','Two people editing one file','One owner per area.',['optional'],false]
+  ];
+  const ITEMS = DATA.map((d, i) => ({ id:i, g:d[0], t:d[1], d:d[2], tags:d[3], done:d[4] }));
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem('frhq-need') || '{}'); } catch(e) {}
+  ITEMS.forEach(it => { if (saved[it.id] !== undefined) it.done = saved[it.id]; });
+
+  const GROUPS = [...new Set(ITEMS.map(i => i.g))];
+  let activeGroup = 'All', activeQ = '';
+  const $ = id => document.getElementById(id);
+
+  function esc(s) { return s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function hl(s) {
+    const t = esc(s);
+    if (!activeQ) return t;
+    const re = new RegExp('(' + activeQ.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig');
+    return t.replace(re, '<mark>$1</mark>');
+  }
+  const SPEAK = '<svg viewBox="0 0 24 24"><path d="M11 5L6 9H3v6h3l5 4V5zM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+
+  function visible() {
+    const q = activeQ.toLowerCase();
+    return ITEMS.filter(i =>
+      (activeGroup === 'All' || i.g === activeGroup) &&
+      (!$('hideDone').checked || !i.done) &&
+      (!q || (i.t + ' ' + i.d + ' ' + i.g + ' ' + i.tags.join(' ')).toLowerCase().includes(q)));
+  }
+
+  function render() {
+    const vis = visible();
+    const byGroup = {};
+    vis.forEach(i => (byGroup[i.g] = byGroup[i.g] || []).push(i));
+    $('list').innerHTML = vis.length ? GROUPS.filter(g => byGroup[g]).map(g =>
+      '<div class="group"><h2>' + esc(g) + '</h2>' + byGroup[g].map(i =>
+        '<div class="item ' + (i.done ? 'done' : '') + '" id="item' + i.id + '">'
+        + '<input type="checkbox" data-id="' + i.id + '"' + (i.done ? ' checked' : '') + ' aria-label="Done">'
+        + '<div class="body"><div class="t">' + hl(i.t) + '</div><div class="d">' + hl(i.d) + '</div>'
+        + '<div class="tags">' + i.tags.map(t => '<span class="tag ' + t + '">' + ({must:'Must do',optional:'Optional',ask:'Ask or decide'}[t]) + '</span>').join('') + '</div></div>'
+        + '<button class="icon-btn" data-say="' + i.id + '" title="Read aloud" aria-label="Read aloud">' + SPEAK + '</button></div>').join('') + '</div>').join('')
+      : '<div class="empty">Nothing matches. Try a different word.</div>';
+    const done = ITEMS.filter(i => i.done).length;
+    $('count').innerHTML = '<b>' + done + '</b> of ' + ITEMS.length + ' done, showing ' + vis.length;
+    $('barFill').style.width = Math.round(done / ITEMS.length * 100) + '%';
+    document.querySelectorAll('#filters button').forEach(b => b.classList.toggle('on', b.dataset.g === activeGroup));
+  }
+
+  $('filters').innerHTML = ['All'].concat(GROUPS).map(g => '<button data-g="' + esc(g) + '">' + esc(g) + '</button>').join('');
+  $('filters').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { activeGroup = b.dataset.g; render(); } });
+  $('q').addEventListener('input', e => { activeQ = e.target.value.trim(); render(); });
+  $('hideDone').addEventListener('change', render);
+  $('list').addEventListener('change', e => {
+    if (e.target.matches('input[type=checkbox]')) {
+      const it = ITEMS[+e.target.dataset.id]; it.done = e.target.checked; saved[it.id] = it.done;
+      try { localStorage.setItem('frhq-need', JSON.stringify(saved)); } catch(x) {}
+      render();
+    }
+  });
+
+  // text to speech
+  const synth = window.speechSynthesis;
+  let queue = [];
+  function clearSpeaking() { document.querySelectorAll('.item.speaking').forEach(el => el.classList.remove('speaking')); }
+  function stop() { queue = []; if (synth) synth.cancel(); clearSpeaking(); }
+  function speakItems(items) {
+    if (!synth) { alert('Text to speech is not supported in this browser.'); return; }
+    stop();
+    queue = items.slice();
+    next();
+  }
+  function next() {
+    clearSpeaking();
+    const it = queue.shift();
+    if (!it) return;
+    const u = new SpeechSynthesisUtterance(it.g + '. ' + it.t + '. ' + it.d);
+    u.rate = parseFloat($('rate').value);
+    const el = $('item' + it.id);
+    if (el) { el.classList.add('speaking'); el.scrollIntoView({ block:'center', behavior:'smooth' }); }
+    u.onend = next;
+    u.onerror = clearSpeaking;
+    synth.speak(u);
+  }
+  $('list').addEventListener('click', e => {
+    const b = e.target.closest('[data-say]');
+    if (b) speakItems([ITEMS[+b.dataset.say]]);
+  });
+  $('readAll').addEventListener('click', () => speakItems(visible()));
+  $('stopBtn').addEventListener('click', stop);
+
+  // theme
+  const SUN = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+  const MOON = '<svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+  function setTheme(d) { document.documentElement.classList.toggle('dark', d); $('themeBtn').innerHTML = d ? SUN : MOON; try { localStorage.setItem('frhq-dark', String(d)); } catch(e) {} }
+  try { setTheme(localStorage.getItem('frhq-dark') === 'true'); } catch(e) { setTheme(false); }
+  $('themeBtn').addEventListener('click', () => setTheme(!document.documentElement.classList.contains('dark')));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === '/' && document.activeElement !== $('q')) { e.preventDefault(); $('q').focus(); }
+    if (e.key === 'Escape') { stop(); $('q').blur(); }
+  });
+  render();
+</script>
+</body>
+</html>

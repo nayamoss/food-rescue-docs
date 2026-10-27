@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Food Rescue HQ: One pager</title>
+<style>
+  @page { size: letter; margin: 0; }
+  :root { --bg:#F5F5F5; --card:#FFFFFF; --raised:#F3F3F3; --sunken:#E8E8E8; --text:#171717; --body:#2B2B2B; --muted:#5C5C5C; --accent:#2F6B50; --on:#FFFFFF; --soft:rgba(47,107,80,.12); }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter",sans-serif; background:var(--bg); color:var(--text); -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .page { width:8.5in; height:11in; margin:0 auto; background:var(--card); padding:0.38in 0.5in; display:flex; flex-direction:column; gap:10px; overflow:hidden; }
+  header { display:flex; justify-content:space-between; align-items:flex-end; }
+  h1 { font-size:30px; font-weight:800; letter-spacing:-.025em; line-height:1.1; }
+  .tag { font-size:15px; color:var(--muted); margin-top:4px; }
+  .who { text-align:right; font-size:12px; color:var(--muted); line-height:1.5; }
+  h2 { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--accent); margin-bottom:6px; }
+  p, li { font-size:12.5px; line-height:1.5; color:var(--body); }
+  .box { background:var(--raised); border-radius:10px; padding:10px 13px; }
+  .hero { background:var(--accent); color:var(--on); border-radius:10px; padding:14px 16px; }
+  .hero h2 { color:var(--on); opacity:.8; }
+  .hero p { color:var(--on); font-size:13.5px; line-height:1.45; }
+  .row { display:grid; gap:12px; }
+  .c2 { grid-template-columns:1fr 1fr; }
+  .c4 { grid-template-columns:repeat(4,1fr); }
+  .step .n { font-family:ui-monospace,"SF Mono",Menlo,monospace; font-weight:700; font-size:20px; color:var(--accent); }
+  .step b { display:block; font-size:13px; margin:2px 0; }
+  .step p { font-size:11.5px; }
+  ul { padding-left:16px; }
+  .kw { font-family:ui-monospace,"SF Mono",Menlo,monospace; font-size:11.5px; background:var(--sunken); border-radius:4px; padding:1px 5px; color:var(--text); }
+  table { width:100%; border-collapse:collapse; }
+  td { font-size:12px; padding:3px 8px 3px 0; vertical-align:top; color:var(--body); }
+  td:first-child { font-weight:650; color:var(--text); white-space:nowrap; width:78px; }
+  .foot { margin-top:auto; display:flex; justify-content:space-between; font-size:11px; color:var(--muted); }
+  @media screen { body { padding:14px 0; } .page { border-radius:13px; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div>
+      <h1>Food Rescue HQ</h1>
+      <div class="tag">Report it, match it, rescue it.</div>
+    </div>
+    <div class="who">CodeTV Web Dev Challenge S3.E9<br>Naya Moss and Nikema</div>
+  </header>
+
+  <div class="hero">
+    <h2>The problem</h2>
+    <p>After conferences and events, good food gets thrown out because organizers have no time and no one to call. Nearby shelters need it. Food Rescue HQ connects the two before it is wasted.</p>
+  </div>
+
+  <div class="row c2">
+    <div class="box">
+      <h2>What it is</h2>
+      <p>A food waste management app for events. An organizer reports leftover food on a quick form. Nearby shelters and partner organizations get a call, claim what they can take, and confirm pickup. A live dashboard tracks where the food goes until it is rescued or the window closes.</p>
+    </div>
+    <div class="box">
+      <h2>Why this fits the brief</h2>
+      <ul>
+        <li>Real problem: event leftovers get thrown out</li>
+        <li>Works for shelters (phone calls) and event organizers (dashboard)</li>
+        <li>Tracks every portion until it is rescued</li>
+        <li>Twilio plus an integration partner</li>
+        <li>Built to delight: dramatic alerts, countdown, a celebration</li>
+      </ul>
+    </div>
+  </div>
+
+  <div>
+    <h2>How it works</h2>
+    <div class="row c4">
+      <div class="box step"><div class="n">1</div><b>Report</b><p>Organizer enters what food is left, where, and how long it stays good. One tap creates the incident.</p></div>
+      <div class="box step"><div class="n">2</div><b>Alert</b><p>Twilio calls nearby shelters and partner organizations. HQ goes urgent with a clock.</p></div>
+      <div class="box step"><div class="n">3</div><b>Claim</b><p>Partners press <span class="kw">1</span> to claim. Pickup is marked on the dashboard.</p></div>
+      <div class="box step"><div class="n">4</div><b>Rescued</b><p>Counters hit the total, the dashboard celebrates, or shows what was lost.</p></div>
+    </div>
+  </div>
+
+  <div class="row c2">
+    <div class="box">
+      <h2>Event HQ (dashboard)</h2>
+      <ul>
+        <li>Countdown and state: urgent, rescuing, rescued, expired</li>
+        <li>Total, unclaimed, claimed and rescued portions</li>
+        <li>Partner list and live activity feed</li>
+        <li>Report panel with a quick form and confirm step</li>
+        <li>Demo controls: simulate a reply, fast-forward, reset</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h2>Shelters and partners (calls)</h2>
+      <table>
+        <tr><td><span class="kw">Press 1</span></td><td>Claim 100 portions</td></tr>
+        <tr><td><span class="kw">Press 2</span></td><td>Pass on this one</td></tr>
+        <tr><td><span class="kw">Dashboard</span></td><td>Mark picked up</td></tr>
+      </table>
+      <p style="margin-top:6px">No app to install. Works on any phone.</p>
+    </div>
+  </div>
+
+  <div class="row c2">
+    <div class="box">
+      <h2>Built with</h2>
+      <table>
+        <tr><td>Twilio</td><td>Required. Sends alerts, receives replies.</td></tr>
+        <tr><td>Replit</td><td>Hosts the app, dashboard and webhook URL.</td></tr>
+        <tr><td>ElevenLabs</td><td>Optional spoken announcement.</td></tr>
+      </table>
+    </div>
+    <div class="box">
+      <h2>Four hours</h2>
+      <table>
+        <tr><td>Hour 1</td><td>Dashboard, state, sample incident</td></tr>
+        <tr><td>Hour 2</td><td>Twilio alerts and reply keywords</td></tr>
+        <tr><td>Hour 3</td><td>Absurd wording and hardening</td></tr>
+        <tr><td>Hour 4</td><td>Celebration, polish, rehearse three times</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="box">
+    <h2>Still to settle</h2>
+    <ul>
+      <li><b>Friday call requirements:</b> which tech is required vs optional, credits, submission and judging (Nikema to confirm)</li>
+      <li><b>Twilio number:</b> the account has none, so confirm which team number to use</li>
+      <li><b>Four product choices:</b> who creates an incident, auto-assign or HQ approves, portions or one person, who resolves it</li>
+      <li><b>Team name</b> and who presents what</li>
+    </ul>
+  </div>
+
+  <div class="foot">
+    <span>Plan, checklist and docs: repo food-rescue-docs</span>
+    <span>Draft for review</span>
+  </div>
+</div>
+</body>
+</html>

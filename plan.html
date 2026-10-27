@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Food Rescue HQ: Plan</title>
+<style>
+  :root {
+    --bg: #F5F5F5;
+    --surface: #FFFFFF;
+    --raised: #F3F3F3;
+    --sunken: #E8E8E8;
+    --text: #171717;
+    --body: #2B2B2B;
+    --muted: #5C5C5C;
+    --faint: #8A8A8A;
+    --accent: #2F6B50;
+    --on-accent: #FFFFFF;
+    --accent-soft: rgba(47,107,80,.12);
+    --amber: #C77700;
+    --red: #B42318;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+  }
+  html.dark {
+    --bg: #0A0A0A;
+    --surface: #141414;
+    --raised: #1E1E1E;
+    --sunken: #2A2A2A;
+    --text: #FAFAFA;
+    --body: #E5E5E5;
+    --muted: #A3A3A3;
+    --faint: #737373;
+    --accent: #5FA987;
+    --on-accent: #0A0A0A;
+    --accent-soft: rgba(95,169,135,.16);
+    --amber: #E0A030;
+    --red: #F07167;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scrollbar-width: thin; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font: inherit; color: inherit; border: none; outline: none; background: none; cursor: pointer; }
+  button:focus-visible { box-shadow: 0 0 0 3px var(--accent-soft); }
+  svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+  /* sidebar */
+  aside {
+    position: fixed; top: 10px; left: 10px; height: calc(100vh - 20px); width: 232px;
+    background: var(--surface); border-radius: 13px; padding: 14px 10px;
+    display: flex; flex-direction: column; transition: width .2s; z-index: 5;
+  }
+  aside.collapsed { width: 60px; }
+  .side-head { display: flex; align-items: center; justify-content: space-between; padding: 4px 6px 16px; height: 44px; }
+  .brand { font-weight: 700; font-size: 16px; letter-spacing: -.01em; white-space: nowrap; }
+  aside.collapsed .brand, aside.collapsed .nav-label { display: none; }
+  aside.collapsed .side-head { justify-content: center; padding: 4px 0 16px; }
+  .icon-btn { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--muted); }
+  .icon-btn:hover { background: var(--raised); color: var(--text); }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+    padding: 9px 10px; border-radius: 8px; color: var(--muted); font-size: 15px; margin-bottom: 2px; white-space: nowrap;
+  }
+  .nav-item:hover { background: var(--raised); color: var(--text); }
+  .nav-item.active { background: var(--raised); color: var(--text); font-weight: 600; }
+  .nav-item.active svg { color: var(--accent); }
+  aside.collapsed .nav-item { justify-content: center; padding: 10px 0; }
+  .side-foot { margin-top: auto; display: flex; gap: 4px; padding: 0 4px; }
+  aside.collapsed .side-foot { flex-direction: column; align-items: center; }
+
+  /* main container */
+  main { margin-left: 252px; padding: 10px 10px 10px 0; transition: margin-left .2s; }
+  main.wide { margin-left: 80px; }
+  .container { background: var(--surface); border-radius: 13px; padding: 40px 48px 72px; min-height: calc(100vh - 20px); }
+  .inner { max-width: 960px; }
+  h1 { font-size: 26px; font-weight: 700; letter-spacing: -.02em; margin-bottom: 36px; }
+  h2 { font-size: 18px; font-weight: 700; margin: 44px 0 16px; letter-spacing: -.01em; }
+  section { display: none; }
+  section.active { display: block; }
+
+  .sub { background: var(--raised); border-radius: 10px; padding: 20px; }
+  .sub h3 { font-size: 16px; font-weight: 650; margin-bottom: 4px; }
+  .sub p { font-size: 15px; color: var(--muted); }
+  .grid { display: grid; gap: 16px; }
+  .g2 { grid-template-columns: repeat(2, 1fr); }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  .g4 { grid-template-columns: repeat(4, 1fr); }
+  .kicker { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 2px; }
+  .stat { font-size: 30px; font-weight: 700; letter-spacing: -.02em; line-height: 1.2; font-variant-numeric: tabular-nums; }
+
+  .seg { display: inline-flex; background: var(--raised); border-radius: 8px; padding: 3px; gap: 2px; margin-bottom: 20px; flex-wrap: wrap; }
+  .seg button { padding: 7px 14px; border-radius: 6px; font-size: 15px; color: var(--muted); }
+  .seg button.on { background: var(--surface); color: var(--text); font-weight: 600; }
+  .btn-primary { background: var(--accent); color: var(--on-accent); border-radius: 6px; padding: 9px 16px; font-weight: 600; font-size: 15px; }
+  .btn-soft { background: var(--sunken); color: var(--text); border-radius: 6px; padding: 9px 14px; font-size: 15px; }
+
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--faint); margin-right: 8px; vertical-align: middle; }
+  .dot.urgent { background: var(--amber); }
+  .dot.rescuing, .dot.p0, .dot.rescued { background: var(--accent); }
+  .dot.expired { background: var(--red); }
+  .dot.p1 { background: var(--muted); }
+  .dot.p2 { background: var(--faint); }
+  .tag { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 5px; background: var(--sunken); color: var(--muted); }
+
+  /* dashboard mock */
+  .dash-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
+  .clock { font-family: var(--mono); font-size: 52px; font-weight: 700; letter-spacing: -.03em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .bar { height: 10px; background: var(--sunken); border-radius: 5px; overflow: hidden; margin: 14px 0 12px; }
+  .bar > div { height: 100%; background: var(--accent); transition: width .5s; }
+  .counts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 16px; }
+  .counts .n { font-family: var(--mono); font-size: 22px; font-weight: 700; }
+  .counts .l { font-size: 13px; color: var(--muted); }
+  .msg { font-size: 15px; color: var(--body); }
+  .feed { list-style: none; margin-top: 8px; }
+  .feed li { font-size: 14px; padding: 5px 0; color: var(--body); }
+  .feed .t { font-family: var(--mono); color: var(--faint); font-size: 12px; margin-right: 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th { text-align: left; font-size: 13px; font-weight: 600; color: var(--muted); padding: 8px 16px 8px 0; }
+  td { padding: 10px 16px 10px 0; color: var(--body); vertical-align: top; }
+  .mono { font-family: var(--mono); }
+
+  /* phone */
+  .phone { background: var(--raised); border-radius: 13px; padding: 16px; min-height: 280px; }
+  .bubble { max-width: 88%; padding: 10px 14px; border-radius: 12px; font-size: 14px; margin-bottom: 8px; background: var(--sunken); color: var(--text); }
+  .bubble.out { margin-left: auto; background: var(--accent); color: var(--on-accent); }
+  .transcript { font-size: 15px; font-style: italic; color: var(--body); min-height: 48px; }
+  .runbar { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+  .runlabel { font-size: 15px; color: var(--muted); }
+  .runlabel b { color: var(--text); }
+  .steps { display: flex; gap: 6px; margin-bottom: 20px; }
+  .steps i { flex: 1; height: 4px; border-radius: 2px; background: var(--sunken); }
+  .steps i.on { background: var(--accent); }
+
+  /* lists */
+  .flow { display: grid; gap: 12px; }
+  .row-card { display: flex; gap: 18px; align-items: flex-start; }
+  .num { width: 34px; height: 34px; border-radius: 8px; background: var(--accent); color: var(--on-accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-family: var(--mono); flex-shrink: 0; }
+  .say { background: var(--accent-soft); border-radius: 8px; padding: 10px 14px; margin-top: 10px; font-size: 15px; color: var(--text); }
+  .milestone { background: var(--accent-soft); color: var(--accent); border-radius: 8px; padding: 10px 12px; font-size: 14px; font-weight: 600; margin-top: 12px; }
+  .arrow { text-align: center; color: var(--faint); font-size: 13px; font-weight: 600; padding: 2px 0; }
+  .node { background: var(--raised); border-radius: 10px; padding: 16px 18px; }
+  .node.core { background: var(--accent); color: var(--on-accent); }
+  .node.core p { color: var(--on-accent); opacity: .85; }
+  .node h3 { font-size: 15px; font-weight: 650; }
+  .node p { font-size: 14px; color: var(--muted); }
+  label.check { display: flex; gap: 14px; align-items: flex-start; padding: 10px 0; cursor: pointer; font-size: 16px; }
+  label.check input { margin-top: 5px; width: 18px; height: 18px; accent-color: var(--accent); }
+  .done { color: var(--faint); text-decoration: line-through; }
+  .prog { font-size: 15px; font-weight: 600; color: var(--accent); margin-bottom: 8px; }
+
+  /* shortcuts modal */
+  #keys { position: fixed; inset: 0; background: rgba(0,0,0,.35); display: none; align-items: center; justify-content: center; z-index: 20; }
+  #keys.open { display: flex; }
+  #keys .box { background: var(--surface); border-radius: 13px; padding: 28px 32px; min-width: 340px; }
+  #keys h3 { margin-bottom: 14px; }
+  #keys td:first-child { font-family: var(--mono); color: var(--text); }
+
+  @media (max-width: 860px) {
+    aside { position: static; width: auto; height: auto; margin: 10px; flex-direction: row; flex-wrap: wrap; }
+    aside.collapsed { width: auto; }
+    .side-head { width: 100%; }
+    .nav-item { width: auto; }
+    .side-foot { margin-top: 0; margin-left: auto; }
+    main, main.wide { margin-left: 0; padding: 0 10px 10px; }
+    .container { padding: 24px 20px 56px; min-height: 0; }
+    .g2, .g3, .g4 { grid-template-columns: 1fr; }
+    .counts { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<aside id="side">
+  <div class="side-head">
+    <span class="brand">Food Rescue HQ</span>
+    <button class="icon-btn" id="collapse" title="Collapse sidebar (Cmd/Ctrl + /)" aria-label="Collapse sidebar">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+    </button>
+  </div>
+  <nav id="nav"></nav>
+  <div class="side-foot">
+    <button class="icon-btn" id="themeBtn" title="Toggle dark mode" aria-label="Toggle dark mode"></button>
+    <button class="icon-btn" id="keysBtn" title="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts">
+      <svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>
+    </button>
+  </div>
+</aside>
+
+<main id="main">
+<div class="container"><div class="inner">
+
+<!-- OVERVIEW -->
+<section id="overview" class="active">
+  <h1>Food Rescue HQ</h1>
+
+  <div class="runbar">
+    <button class="btn-primary" id="playBtn">Run the demo</button>
+    <span class="runlabel" id="runLabel">Step <b>1</b> of 8: Idle</span>
+  </div>
+  <div class="steps" id="runSteps"></div>
+
+  <div class="grid g2">
+    <div class="sub" id="heroDash"></div>
+    <div class="grid" style="align-content:start">
+      <div class="sub"><div class="kicker">Organizer reports</div><div class="transcript" id="heroTranscript"></div></div>
+      <div class="phone" id="heroPhone"></div>
+    </div>
+  </div>
+
+  <h2>The facts</h2>
+  <div class="grid g4">
+    <div class="sub"><div class="kicker">Format</div><div class="stat">30m + 4h</div><p>Plan, then build</p></div>
+    <div class="sub"><div class="kicker">Scenario</div><div class="stat">400</div><p>Meals, nobody showed up</p></div>
+    <div class="sub"><div class="kicker">Window</div><div class="stat">45 min</div><p>Before the food is unsafe</p></div>
+    <div class="sub"><div class="kicker">Team</div><div class="stat">2</div><p>Naya and Nikema</p></div>
+  </div>
+
+  <h2>The stack</h2>
+  <div class="grid g3">
+    <div class="sub"><h3>Replit</h3><p>Hosts the app, dashboard and public webhook URL</p></div>
+    <div class="sub"><h3>Twilio</h3><p>Calls partners, takes press 1 to claim</p></div>
+    <div class="sub"><h3>ElevenLabs</h3><p>Optional spoken announcement</p></div>
+  </div>
+</section>
+
+<!-- FLOW -->
+<section id="flow">
+  <h1>How it works</h1>
+  <div class="flow">
+    <div class="sub row-card"><div class="num">1</div><div><h3>Organizer files a report</h3><p>400 meals, main hall, 45 minutes. A short form on the dashboard, prefilled so it takes one click.</p></div></div>
+    <div class="sub row-card"><div class="num">2</div><div><h3>The app checks and confirms</h3><p>Quantity, item, location and minutes are validated, then confirmed with one tap.</p></div></div>
+    <div class="sub row-card"><div class="num">3</div><div><h3>Incident goes live</h3><p>Dashboard flips to urgent with a 45:00 countdown and 400 unclaimed.</p></div></div>
+    <div class="sub row-card"><div class="num">4</div><div><h3>Twilio calls every partner</h3><p>"Food rescue. 400 meals at main hall. Press 1 to claim 100, press 2 to pass."</p></div></div>
+    <div class="sub row-card"><div class="num">5</div><div><h3>Partners press 1 to claim</h3><p>Who claimed what shows on the dashboard, the unclaimed count drops.</p></div></div>
+    <div class="sub row-card"><div class="num">6</div><div><h3>Pickup is confirmed</h3><p>A Mark picked up button on the dashboard. The rescued counter climbs toward 400.</p></div></div>
+    <div class="sub row-card"><div class="num">7</div><div><h3>Rescue complete</h3><p>Celebration state, with an optional spoken announcement. If the clock runs out first, the rest is marked expired.</p></div></div>
+  </div>
+</section>
+
+<!-- SCREENS -->
+<section id="screens">
+  <h1>Screens</h1>
+  <div class="seg" id="stateSeg">
+    <button data-s="idle" class="on">Idle</button>
+    <button data-s="urgent">Urgent</button>
+    <button data-s="rescuing">Rescuing</button>
+    <button data-s="rescued">Rescued</button>
+    <button data-s="expired">Expired</button>
+  </div>
+  <div class="sub" id="screenDash"></div>
+  <div class="grid g2" style="margin-top:16px">
+    <div class="sub"><h3>Report panel</h3><p>A quick report form with a confirm step: quantity, item, location, minutes. Defaults are prefilled.</p></div>
+    <div class="sub"><h3>Demo controls</h3><p>Sample incident, simulate a reply, fast-forward, reset. The safety net if a call fails.</p></div>
+  </div>
+
+  <h2>Screen list</h2>
+  <div class="sub">
+    <table>
+      <thead><tr><th>Screen</th><th>Where</th><th>Priority</th></tr></thead>
+      <tbody>
+        <tr><td>Command center dashboard</td><td class="mono">/</td><td><span class="dot p0"></span>Must have</td></tr>
+        <tr><td>Report panel</td><td>Panel on /</td><td><span class="dot p0"></span>Must have</td></tr>
+        <tr><td>Demo controls</td><td>Panel on /</td><td><span class="dot p0"></span>Must have</td></tr>
+        <tr><td>Partner experience</td><td>Phone call</td><td><span class="dot p0"></span>Must have</td></tr>
+        <tr><td>Partner web page</td><td class="mono">/v</td><td><span class="dot p2"></span>Stretch</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <h1>Features</h1>
+  <div class="seg" id="featSeg">
+    <button data-f="all" class="on">All</button>
+    <button data-f="p0">Must have</button>
+    <button data-f="p1">Nice to have</button>
+    <button data-f="p2">Stretch</button>
+  </div>
+  <div class="grid g2" id="featGrid"></div>
+</section>
+
+<!-- ARCH -->
+<section id="arch">
+  <h1>Architecture</h1>
+  <div class="grid g2">
+    <div>
+      <div class="node"><h3>Browser</h3><p>Dashboard, report form, demo controls</p></div>
+      <div class="arrow">reports up, live updates down (SSE)</div>
+      <div class="node core"><h3>Replit: Express server</h3><p>Routes, state, call handler, 1 second expiry timer. State saved to data/state.json.</p></div>
+      <div class="arrow">calls out, webhooks in</div>
+      <div class="grid g2">
+        <div class="node"><h3>Twilio</h3><p>Voice calls out, keypad in</p></div>
+        <div class="node"><h3>ElevenLabs</h3><p>Voice, optional</p></div>
+      </div>
+      <div class="arrow">Voice call</div>
+      <div class="node"><h3>Partner phones</h3><p>Any phone, nothing to install</p></div>
+    </div>
+    <div class="grid" style="align-content:start">
+      <div class="sub">
+        <h3>Call keypad</h3>
+        <table>
+          <thead><tr><th>Keyword</th><th>Effect</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">JOIN</td><td>Opt in to alerts</td></tr>
+            <tr><td class="mono">CLAIM n</td><td>Take n portions, default 100</td></tr>
+            <tr><td class="mono">PICKED UP</td><td>Count the claim as rescued</td></tr>
+            <tr><td class="mono">STOP</td><td>Opt out</td></tr>
+            <tr><td class="mono">HELP</td><td>List commands</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="sub">
+        <h3>Endpoints</h3>
+        <table>
+          <tbody>
+            <tr><td class="mono">GET /</td></tr>
+            <tr><td class="mono">GET /api/state</td></tr>
+            <tr><td class="mono">GET /api/stream</td></tr>
+                        <tr><td class="mono">POST /api/incidents</td></tr>
+            <tr><td class="mono">POST /api/simulate</td></tr>
+            <tr><td class="mono">POST /voice/alert, /voice/claim</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <h2>Decisions already made</h2>
+  <div class="grid g2">
+    <div class="sub"><h3>Web app plus phone calls</h3><p>No native app and no PWA. Partners install nothing. The organizer needs a browser.</p></div>
+    <div class="sub"><h3>Plain HTML and Express</h3><p>No build step, less to break in 4 hours. React and Tailwind is possible if you prefer it.</p></div>
+    <div class="sub"><h3>Demo controls built in</h3><p>Every step can be simulated from the dashboard, so the demo survives a failed call.</p></div>
+    <div class="sub"><h3>Food Rescue over Hamster HQ</h3><p>Same loop technically. Food Rescue is the one that fits the brief, meal crisis included.</p></div>
+  </div>
+
+  <h2>If something breaks</h2>
+  <div class="grid g3">
+    <div class="sub"><h3>Form misbehaves</h3><p>Use Create sample incident. It takes the same path.</p></div>
+    <div class="sub"><h3>Calls blocked</h3><p>Use the simulate buttons. The feed tells the same story.</p></div>
+    <div class="sub"><h3>Repl restarts</h3><p>State reloads from the saved file. Ping the URL before the demo.</p></div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section id="timeline">
+  <h1>4-hour timeline</h1>
+  <div class="grid g2">
+    <div class="sub"><span class="tag">Planning, 30 min</span><h3 style="margin-top:10px">Agree and read the brief</h3><p>Confirm concept and owners, check required tech and judging, agree the cut line, pick 3 demo phones.</p></div>
+    <div class="sub"><span class="tag">Hour 1</span><h3 style="margin-top:10px">Skeleton and state</h3><p>Replit app, dashboard, incident state, sample incident button.</p><div class="milestone">Click the button and the dashboard goes urgent with a ticking clock</div></div>
+    <div class="sub"><span class="tag">Hour 2</span><h3 style="margin-top:10px">Twilio loop</h3><p>Place calls, voice webhooks, press 1 to claim, rescued and expired states.</p><div class="milestone">Answer a real call and press 1 and the dashboard moves within 5 seconds</div></div>
+    <div class="sub"><span class="tag">Hour 3</span><h3 style="margin-top:10px">Tone and hardening</h3><p>Theatrical wording, escalating urgency, fast-forward and reset, failure paths.</p><div class="milestone">Say the demo sentence, confirm, phones buzz</div></div>
+    <div class="sub"><span class="tag">Hour 4</span><h3 style="margin-top:10px">Polish and rehearse</h3><p>Celebration, ElevenLabs if time, visual pass, two full runs and one with no phones.</p><div class="milestone">Two clean runs and one fallback drill</div></div>
+    <div class="sub"><h3>Cut line, in order</h3><p>1. ElevenLabs<br>2. Celebration animation<br>3. Phone-call reporting and WhatsApp<br>4. Escalating urgency labels<br>Never cut: dashboard, Twilio loop, report form, demo controls</p></div>
+  </div>
+
+  <h2>Who does what (proposal)</h2>
+  <div class="sub">
+    <table>
+      <thead><tr><th>Area</th><th>Owner</th></tr></thead>
+      <tbody>
+        <tr><td>Dashboard, state, demo controls</td><td>Naya</td></tr>
+        <tr><td>Twilio send and webhook, keyword logic</td><td>Nikema</td></tr>
+        <tr><td>Report form, incident endpoint, expiry timer</td><td>Nikema, then pair</td></tr>
+        <tr><td>Celebration, ElevenLabs, demo script</td><td>Naya</td></tr>
+        <tr><td>Rehearsal</td><td>Both</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- DEMO -->
+<section id="demo">
+  <h1>Demo script</h1>
+  <div class="flow" id="demoList"></div>
+
+  <h2>Fallback plays</h2>
+  <div class="grid g3">
+    <div class="sub"><h3>Form misbehaves</h3><p>Tap Create sample incident, same path, same result.</p></div>
+    <div class="sub"><h3>Calls are slow</h3><p>Use the simulate buttons. "Here is the same answer coming in from the field."</p></div>
+    <div class="sub"><h3>Dashboard stalls</h3><p>Refresh. State reloads from the saved file.</p></div>
+  </div>
+</section>
+
+<!-- PREP -->
+<section id="prep">
+  <h1>Before the day</h1>
+  <div class="prog" id="prepProg"></div>
+  <div id="prepList"></div>
+</section>
+
+<!-- RISKS -->
+<section id="risks">
+  <h1>Risks and unknowns</h1>
+  <h2 style="margin-top:0">Not verified yet</h2>
+  <div class="grid g2">
+    <div class="sub"><h3>Friday call requirements</h3><p>The written brief needs Twilio plus one partner. The call may have added more. Nikema has to confirm which tech is required.</p></div>
+    <div class="sub"><h3>Twilio ConversationRelay</h3><p>The brief recommends it but does not require it. If the advisors expect it, phone-call reporting becomes a must have.</p></div>
+    <div class="sub"><h3>Submission and judging</h3><p>Repo visibility, deployed URL, deadline and judging weights are not in the written brief. Ask Nikema.</p></div>
+    <div class="sub"><h3>Number registration</h3><p>Unknown which number the team uses, and the account has none yet.</p></div>
+  </div>
+
+  <h2>Risk register</h2>
+  <div class="sub">
+    <table>
+      <thead><tr><th>Risk</th><th>Impact</th><th>Mitigation</th></tr></thead>
+      <tbody>
+        <tr><td>Twilio trial only calls verified numbers</td><td><span class="dot expired"></span>High</td><td>Send Account SID to Chris early, verify demo numbers, keep simulate controls</td></tr>
+        <tr><td>Webhook cannot reach Replit</td><td><span class="dot expired"></span>High</td><td>Smoke test before the day</td></tr>
+        <tr><td>Repl sleeps mid-demo</td><td><span class="dot expired"></span>High</td><td>Keep the tab open, ping the URL, state persists to file</td></tr>
+        <tr><td>Scope creep</td><td><span class="dot expired"></span>High</td><td>Review the cut line at the start of each hour</td></tr>
+        <tr><td>Two people editing one file</td><td><span class="dot urgent"></span>Medium</td><td>One owner per area</td></tr>
+        <tr><td>Parse misses quantity</td><td><span class="dot"></span>Low</td><td>Confirm form is editable</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</div></div>
+</main>
+
+<div id="keys"><div class="box">
+  <h3>Keyboard shortcuts</h3>
+  <table><tbody>
+    <tr><td>Cmd/Ctrl + /</td><td>Collapse sidebar</td></tr>
+    <tr><td>1 to 9</td><td>Jump to a section</td></tr>
+    <tr><td>?</td><td>This list</td></tr>
+    <tr><td>Esc</td><td>Close</td></tr>
+  </tbody></table>
+</div></div>
+
+<script>
+  const ICONS = {
+    overview: '<rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/>',
+    flow: '<circle cx="6" cy="19" r="3"/><circle cx="18" cy="5" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/>',
+    screens: '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',
+    features: '<path d="M3 6l2 2 4-4M3 14l2 2 4-4M13 6h8M13 14h8M13 20h8"/>',
+    arch: '<rect x="9" y="2" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="16" y="16" width="6" height="6" rx="1"/><path d="M12 8v4M5 16v-4h14v4"/>',
+    timeline: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    demo: '<path d="M6 4l14 8-14 8z"/>',
+    prep: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12l3 3 5-6"/>',
+    risks: '<path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0zM12 9v4M12 17h.01"/>'
+  };
+  const TABS = [
+    ['overview','Overview'],['flow','How it works'],['screens','Screens'],['features','Features'],
+    ['arch','Architecture'],['timeline','4-hour timeline'],['demo','Demo script'],['prep','Before the day'],['risks','Risks']
+  ];
+  const nav = document.getElementById('nav');
+  TABS.forEach(([id,label],i) => {
+    const b = document.createElement('button');
+    b.className = 'nav-item' + (i===0 ? ' active' : '');
+    b.dataset.tab = id; b.title = label;
+    b.innerHTML = '<svg viewBox="0 0 24 24">' + ICONS[id] + '</svg><span class="nav-label">' + label + '</span>';
+    b.addEventListener('click', () => go(id));
+    nav.appendChild(b);
+  });
+  function go(id) {
+    document.querySelectorAll('.nav-item').forEach(x => x.classList.toggle('active', x.dataset.tab === id));
+    document.querySelectorAll('section').forEach(s => s.classList.toggle('active', s.id === id));
+    window.scrollTo(0, 0);
+    try { localStorage.setItem('frhq-tab', id); } catch(e) {}
+  }
+  try { const t = localStorage.getItem('frhq-tab'); if (t && document.getElementById(t)) go(t); } catch(e) {}
+
+  // sidebar collapse
+  const side = document.getElementById('side'), main = document.getElementById('main');
+  function setCollapsed(c) {
+    side.classList.toggle('collapsed', c); main.classList.toggle('wide', c);
+    try { localStorage.setItem('frhq-collapsed', String(c)); } catch(e) {}
+  }
+  try { setCollapsed(localStorage.getItem('frhq-collapsed') === 'true'); } catch(e) {}
+  document.getElementById('collapse').addEventListener('click', () => setCollapsed(!side.classList.contains('collapsed')));
+
+  // theme
+  const SUN = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+  const MOON = '<svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+  const themeBtn = document.getElementById('themeBtn');
+  function setTheme(d) {
+    document.documentElement.classList.toggle('dark', d);
+    themeBtn.innerHTML = d ? SUN : MOON;
+    try { localStorage.setItem('frhq-dark', String(d)); } catch(e) {}
+  }
+  try { setTheme(localStorage.getItem('frhq-dark') === 'true'); } catch(e) { setTheme(false); }
+  themeBtn.addEventListener('click', () => setTheme(!document.documentElement.classList.contains('dark')));
+
+  // shortcuts
+  const keys = document.getElementById('keys');
+  document.getElementById('keysBtn').addEventListener('click', () => keys.classList.add('open'));
+  keys.addEventListener('click', e => { if (e.target === keys) keys.classList.remove('open'); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') keys.classList.remove('open');
+    if (['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return;
+    if (e.key === '/' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); setCollapsed(!side.classList.contains('collapsed')); return; }
+    if (e.key === '?') { keys.classList.toggle('open'); return; }
+    if (!e.metaKey && !e.ctrlKey && /^[1-9]$/.test(e.key) && TABS[+e.key - 1]) go(TABS[+e.key - 1][0]);
+  });
+
+  // dashboard renderer
+  const STATE_LABEL = { idle:'Idle', urgent:'Urgent', rescuing:'Rescuing', rescued:'Rescued', expired:'Expired' };
+  function dashHTML(s, full) {
+    const pct = s.total ? Math.round(s.rescued / s.total * 100) : 0;
+    let h = '<div class="dash-top"><span><span class="dot ' + s.state + '"></span>' + STATE_LABEL[s.state] + '</span><span class="kicker" style="margin:0">Time remaining</span></div>'
+      + '<div class="clock">' + s.clock + '</div>'
+      + '<div class="bar"><div style="width:' + pct + '%"></div></div>'
+      + '<div class="msg">' + s.msg + '</div>'
+      + '<div class="counts">'
+      + '<div><div class="n">' + s.total + '</div><div class="l">Total</div></div>'
+      + '<div><div class="n">' + (s.total - s.claimed) + '</div><div class="l">Unclaimed</div></div>'
+      + '<div><div class="n">' + s.claimed + '</div><div class="l">Claimed</div></div>'
+      + '<div><div class="n">' + s.rescued + '</div><div class="l">Rescued</div></div></div>';
+    if (full) {
+      h += '<h2 style="font-size:15px;margin:24px 0 6px">Partners</h2><table><thead><tr><th>Name</th><th>Claimed</th><th>Picked up</th><th>Status</th></tr></thead><tbody>'
+        + (s.vols.length ? s.vols.map(v => '<tr>' + v.map(c => '<td>' + c + '</td>').join('') + '</tr>').join('')
+          : '<tr><td colspan="4" style="color:var(--faint)">No partners alerted yet</td></tr>') + '</tbody></table>';
+    }
+    h += '<h2 style="font-size:15px;margin:20px 0 4px">Activity</h2><ul class="feed">'
+      + (s.feed.length ? s.feed.map(f => '<li><span class="t">' + f[0] + '</span>' + f[1] + '</li>').join('')
+        : '<li style="color:var(--faint)">Nothing yet</li>') + '</ul>';
+    return h;
+  }
+
+  // screens tab states
+  const SCREEN = {
+    idle:     { state:'idle', clock:'--:--', total:0, claimed:0, rescued:0, msg:'All clear. No surplus food reported.', vols:[], feed:[] },
+    urgent:   { state:'urgent', clock:'45:00', total:400, claimed:0, rescued:0, msg:'400 meals at main hall. Alerts sent to 3 partners.',
+                vols:[['Partner shelter A','0','0','Alerted'],['Partner shelter B','0','0','Alerted'],['Community kitchen','0','0','Alerted']],
+                feed:[['2:01','Report received, incident created'],['2:01','Alerts sent to 3 partners']] },
+    rescuing: { state:'rescuing', clock:'38:12', total:400, claimed:400, rescued:150, msg:'Everything is claimed. Waiting on pickups.',
+                vols:[['Partner shelter A','150','150','Picked up'],['Partner shelter B','250','0','Claimed'],['Community kitchen','0','0','No claim']],
+                feed:[['2:09','Partner shelter A picked up 150 meals'],['2:06','Partner shelter B claimed 250 meals'],['2:04','Partner shelter A claimed 150 meals']] },
+    rescued:  { state:'rescued', clock:'31:40', total:400, claimed:400, rescued:400, msg:'400 meals rescued. Nobody goes hungry.',
+                vols:[['Partner shelter A','150','150','Picked up'],['Partner shelter B','250','250','Picked up'],['Community kitchen','0','0','No claim']],
+                feed:[['2:14','Partner shelter B picked up 250 meals. All 400 rescued.'],['2:09','Partner shelter A picked up 150 meals']] },
+    expired:  { state:'expired', clock:'00:00', total:400, claimed:400, rescued:150, msg:'Time ran out. 250 meals were not picked up.',
+                vols:[['Partner shelter A','150','150','Picked up'],['Partner shelter B','250','0','Missed'],['Community kitchen','0','0','No claim']],
+                feed:[['2:46','Clock reached zero. 250 meals not rescued.'],['2:09','Partner shelter A picked up 150 meals']] }
+  };
+  function showScreen(k) {
+    document.getElementById('screenDash').innerHTML = dashHTML(SCREEN[k], true);
+    document.querySelectorAll('#stateSeg button').forEach(b => b.classList.toggle('on', b.dataset.s === k));
+  }
+  document.querySelectorAll('#stateSeg button').forEach(b => b.addEventListener('click', () => showScreen(b.dataset.s)));
+  showScreen('idle');
+
+  // hero: scripted demo run
+  const SAY = '400 meals, main hall, 45 minutes';
+  const PATCHES = [
+    { label:'Idle' },
+    { label:'Organizer files report', transcript:SAY, msg:'Report received' },
+    { label:'Incident created', state:'urgent', clock:'45:00', total:400, msg:'400 meals at main hall', feed:[['2:01','Report turned into an incident']] },
+    { label:'Alerts sent', msg:'Alerts sent to 3 partners', feed:[['2:01','Alerts sent to 3 partners']],
+      bubbles:[['in','Call: Food rescue. 400 meals at main hall. Press 1 to claim 100, press 2 to pass.']] },
+    { label:'Partner shelter A claims 150', state:'rescuing', clock:'43:10', claimed:150, msg:'Claims are coming in', feed:[['2:03','Partner shelter A claimed 150 meals']],
+      bubbles:[['out','Pressed 1'],['in','Got it. 150 meals claimed. Please pick up by the deadline.']] },
+    { label:'Partner shelter B claims 250', clock:'41:55', claimed:400, msg:'Everything is claimed', feed:[['2:05','Partner shelter B claimed 250 meals']] },
+    { label:'Partner shelter A picks up', clock:'38:12', rescued:150, msg:'150 rescued, 250 to go', feed:[['2:09','Partner shelter A picked up 150 meals']],
+      bubbles:[['out','Mark picked up (dashboard)'],['in','Thank you. 150 meals rescued.']] },
+    { label:'Partner shelter B picks up', state:'rescued', clock:'31:40', rescued:400, msg:'400 meals rescued. Nobody goes hungry.', feed:[['2:14','Partner shelter B picked up 250 meals. All 400 rescued.']] }
+  ];
+  function sceneAt(n) {
+    let s = { state:'idle', clock:'--:--', total:0, claimed:0, rescued:0, msg:'All clear. No surplus food reported.', vols:[], feed:[], bubbles:[], transcript:'' };
+    for (let i = 0; i <= n; i++) {
+      const p = PATCHES[i];
+      for (const k in p) {
+        if (k === 'feed') s.feed = p.feed.concat(s.feed);
+        else if (k === 'bubbles') s.bubbles = s.bubbles.concat(p.bubbles);
+        else if (k !== 'label') s[k] = p[k];
+      }
+    }
+    return s;
+  }
+  const stepsEl = document.getElementById('runSteps');
+  stepsEl.innerHTML = PATCHES.map(() => '<i></i>').join('');
+  function showStep(n) {
+    const s = sceneAt(n);
+    document.getElementById('heroDash').innerHTML = dashHTML(s, false);
+    document.getElementById('heroTranscript').textContent = s.transcript || 'Waiting for a report';
+    document.getElementById('heroPhone').innerHTML = s.bubbles.length
+      ? s.bubbles.map(b => '<div class="bubble ' + (b[0] === 'out' ? 'out' : '') + '">' + b[1] + '</div>').join('')
+      : '<div class="kicker">Partner phone</div><div class="msg" style="color:var(--faint)">No messages yet</div>';
+    document.getElementById('runLabel').innerHTML = 'Step <b>' + (n + 1) + '</b> of ' + PATCHES.length + ': ' + PATCHES[n].label;
+    stepsEl.querySelectorAll('i').forEach((el, i) => el.classList.toggle('on', i <= n));
+  }
+  let timer = null, cur = 0;
+  const playBtn = document.getElementById('playBtn');
+  function stop() { clearInterval(timer); timer = null; }
+  playBtn.addEventListener('click', () => {
+    if (timer) { stop(); playBtn.textContent = 'Resume'; return; }
+    if (cur >= PATCHES.length - 1) cur = 0;
+    showStep(cur);
+    playBtn.textContent = 'Pause';
+    timer = setInterval(() => {
+      cur++;
+      showStep(cur);
+      if (cur >= PATCHES.length - 1) { stop(); playBtn.textContent = 'Replay'; }
+    }, 1900);
+  });
+  showStep(0);
+
+  // features
+  const FEATURES = [
+    ['F1','Live dashboard','Countdown, counters, partners, feed. Updates with no refresh.','p0'],
+    ['F2','Quick report form','Quantity, item, location, minutes with defaults and a confirm step.','p0'],
+    ['F3','Incident creation','One active rescue at a time, from the form or the demo button.','p0'],
+    ['F4','Voice calls (Twilio)','Call every opted-in partner when an incident starts.','p0'],
+    ['F5','Claim by keypad','Press 1 to claim, 2 to pass, plus a Mark picked up button.','p0'],
+    ['F6','Complete and expire','Rescued when all food is picked up, expired when the clock hits zero.','p0'],
+    ['F8','Demo controls','Sample incident, simulate reply, fast-forward, reset. The safety net.','p0'],
+    ['F7','Celebration moment','Big "400 meals rescued" state.','p1'],
+    ['F9','ElevenLabs announcement','Spoken alert at start and at rescue, silent fallback.','p2'],
+    ['F10','Phone-call reporting','Organizer dials the number and reports by phone with Twilio Voice.','p2'],
+    ['F11','WhatsApp','Same keywords, only if the sender supports it.','p2']
+  ];
+  const PRI = { p0:'Must have', p1:'Nice to have', p2:'Stretch' };
+  function showFeatures(f) {
+    document.getElementById('featGrid').innerHTML = FEATURES.filter(x => f === 'all' || x[3] === f).map(x =>
+      '<div class="sub"><div class="kicker"><span class="dot ' + x[3] + '"></span>' + PRI[x[3]] + '</div>'
+      + '<h3>' + x[0] + ': ' + x[1] + '</h3><p>' + x[2] + '</p></div>').join('');
+    document.querySelectorAll('#featSeg button').forEach(b => b.classList.toggle('on', b.dataset.f === f));
+  }
+  document.querySelectorAll('#featSeg button').forEach(b => b.addEventListener('click', () => showFeatures(b.dataset.f)));
+  showFeatures('all');
+
+  // demo script
+  const DEMO = [
+    ['0:00','Dashboard is idle','Every year, tons of good food gets thrown out because nobody can coordinate a rescue in time. This is Food Rescue HQ.'],
+    ['0:25','Fill in the report, tap confirm','One report, and the rescue is live.'],
+    ['0:45','Dashboard goes urgent, 45:00 on the clock, phones buzz','Twilio is texting every partner on the list.'],
+    ['1:00','Partner A texts CLAIM 150','Claims come back by text and the command center updates live.'],
+    ['1:20','Partner B texts CLAIM 250','Everything is spoken for with 41 minutes left.'],
+    ['1:40','Partner A texts PICKED UP, rescued: 150','Pickups are confirmed the same way.'],
+    ['2:00','Partner B texts PICKED UP, rescued: 400, celebration','Four hundred meals, rescued, in under three minutes.'],
+    ['2:20','Back to the stack','Replit hosts it, Twilio carries the alerts.']
+  ];
+  document.getElementById('demoList').innerHTML = DEMO.map((d, i) =>
+    '<div class="sub row-card"><div class="num">' + (i + 1) + '</div><div><div class="kicker mono">' + d[0] + '</div>'
+    + '<h3>' + d[1] + '</h3><div class="say">"' + d[2] + '"</div></div></div>').join('');
+
+  // prep checklist
+  const PREP = [
+    'Read the S3.E9 challenge doc and note required tech, judging and submission rules',
+    'Create a hello-world Express Repl and open the URL on your phone',
+    'Add one Secret in Replit and read it with process.env',
+    'Create a fresh Twilio account and copy the Account SID (starts with AC)',
+    'Send only the Account SID to Chris for credits and trial removal',
+    'Get a Twilio number and confirm it can place a voice call',
+    'Point the number webhook at the Repl and see From and Body in the logs',
+    'Pick 2 to 3 demo partner numbers and have each text JOIN',
+    'Create an ElevenLabs key and test one TTS call (optional)',
+    'Agree concept and owners with Nikema',
+    'Decide repo visibility once the brief is read'
+  ];
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem('frhq-prep') || '{}'); } catch(e) {}
+  function renderPrep() {
+    const list = document.getElementById('prepList');
+    list.innerHTML = PREP.map((t, i) => '<label class="check"><input type="checkbox" data-i="' + i + '"' + (saved[i] ? ' checked' : '') + '>'
+      + '<span class="' + (saved[i] ? 'done' : '') + '">' + t + '</span></label>').join('');
+    document.getElementById('prepProg').textContent = Object.values(saved).filter(Boolean).length + ' of ' + PREP.length + ' done';
+    list.querySelectorAll('input').forEach(c => c.addEventListener('change', () => {
+      saved[c.dataset.i] = c.checked;
+      try { localStorage.setItem('frhq-prep', JSON.stringify(saved)); } catch(e) {}
+      renderPrep();
+    }));
+  }
+  renderPrep();
+</script>
+</body>
+</html>
